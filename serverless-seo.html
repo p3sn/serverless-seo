@@ -1,0 +1,133 @@
+<!-- 
+    Author: Peter Driessen
+    Google Top Contributor at the Google Webmaster Central Help Forum 
+    If you have any questions or feedback: info@studioio.io
+-->
+
+<script>
+    'use strict';
+
+    class JSOptimize extends HTMLElement {
+
+        constructor() {
+            super();
+        }
+
+        connectedCallback() {
+            window.addEventListener('location-changed', this._reset);
+        }
+
+        disconnectedCallback() {
+            this._reset();
+            window.removeEventListener('location-changed', this._reset);
+        }
+
+        _reset() {
+            var parent = document.getElementsByTagName('head')[0];
+            if (parent.querySelector("title")) parent.removeChild(parent.querySelector("title"));
+            if (parent.querySelector("meta[name=description]")) parent.removeChild(parent.querySelector(
+                "meta[name=description]"));
+            if (parent.querySelector("link[rel=canonical]")) parent.removeChild(parent.querySelector(
+                "link[rel=canonical]"));
+            if (parent.querySelector("meta[name=robots]")) parent.removeChild(parent.querySelector(
+                "meta[name=robots]"));
+            if (parent.querySelector("script[name=schema]")) parent.removeChild(parent.querySelector(
+                "script[name=schema]"));
+        }
+
+        get meta() {
+            let s = this.getAttribute('meta');
+            return s ? JSON.parse(s) : [];
+        }
+
+        set meta(val) {
+            this.setAttribute('meta', JSON.stringify(val));
+            this._updateDOM();
+        }
+
+        get schema() {
+            let s = this.getAttribute('schema');
+            return s ? JSON.parse(s) : [];
+        }
+
+        set schema(val) {
+            this.setAttribute('schema', JSON.stringify(val));
+            this._updateSchema();
+        }
+
+        _updateDOM() {
+            var meta = this.meta;
+            if (typeof meta !== 'object') {
+                console.warn('SEO Component: meta is not an object');
+                return;
+            }
+            if (typeof meta.title === 'string') this._updateTitle(meta.title);
+            if (typeof meta.description === 'string') this._updateDescription(meta.description);
+            if (typeof meta.canonical === 'string') this._updateCanonical(meta.canonical);
+            let index = (typeof meta.index !== 'undefined' && meta.index.toLowerCase() === 'noindex') ?
+                'noindex' : 'index';
+            let follow = (typeof meta.follow !== 'undefined' && meta.follow.toLowerCase() === 'nofollow') ?
+                'nofollow' : 'follow';
+            this._updateRobots(index, follow);
+        }
+
+        _updateTitle(title) {
+            document.title = title;
+        }
+
+        _updateDescription(descr) {
+            this._updateElement('meta', 'name=description', {
+                'content': descr
+            });
+        }
+
+        _updateCanonical(url) {
+            this._updateElement('link', 'rel=canonical', {
+                'href': url
+            });
+        }
+
+        _updateRobots(index, follow) {
+            this._updateElement('meta', 'name=robots', {
+                'content': index + ', ' + follow
+            });
+        }
+
+        _updateElement(tag, identifier, attributes) {
+            let selector = tag + "[" + identifier + "]";
+            let el = document.querySelector(selector);
+            if (el) {
+                Object.keys(attributes).forEach(function (key) {
+                    el.setAttribute(key, attributes[key]);
+                });
+            } else {
+                el = document.createElement(tag);
+                Object.keys(attributes).forEach(function (key) {
+                    el.setAttribute(key, attributes[key]);
+                });
+                document.getElementsByTagName('head')[0].appendChild(el);
+            }
+        }
+
+        _updateSchema() {
+            var jsonld = JSON.stringify(this.schema);
+            let el = document.querySelector('script[type="application/ld+json"]');
+            if (el) {
+                el.text = jsonld;
+            } else {
+                
+                el = document.createElement('script');
+                el.setAttribute('type', 'type="application/ld+json"');
+                el.text = jsonld;
+                var doc = document.getElementsByTagName('head')[0];
+                console.log(el);
+                doc.appendChild(el);
+                // while (el.childNodes[0]) {
+                //     doc.appendChild(el.childNodes[0]);
+                // }
+            }
+        }
+
+    }
+    window.customElements.define('serverless-seo', JSOptimize);
+</script>
