@@ -12,5 +12,5 @@ var seodata = {
 	"canonical": "https://www.domain.com/preferred/url/to/index/",
 }
 </script>
-<seo-js settings="{{seodata}}"></seo-js>
+<js-seo settings="{{seodata}}"></js-seo>
 ```
