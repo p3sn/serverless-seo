@@ -1,11 +1,11 @@
 {
-  "name": "js-seo",
-  "homepage": "https://github.com/p3sn/js-seo",
+  "name": "serverless-seo",
+  "homepage": "https://github.com/p3sn/serverless-seo",
   "authors": [
     "Peter Driessen - info@studioio.io"
   ],
   "description": "Optimize your javascript application for the googlebot with this webcomponent",
-  "main": "js-seo.html",
+  "main": "serverless-seo.html",
   "license": "Apache-2.0",
   "ignore": [
     "**/.*",
